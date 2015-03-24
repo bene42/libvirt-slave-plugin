@@ -11,6 +11,8 @@ import hudson.slaves.OfflineCause;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.libvirt.Domain;
 import org.libvirt.DomainSnapshot;
@@ -79,33 +81,26 @@ public class LibvirtSnapshotRevertRunListener extends RunListener<Run<?, ?>> {
                         IDomainSnapshot snapshot = domain.snapshotLookupByName(snapshotName);
                         try {
                             Computer computer = slave.getComputer();
+                            Future<?> disconnect = computer.disconnect(new RevertOfflineCause(vmName, snapshotName));
                             try {
-                                computer.getChannel().syncLocalIO();
+                                // wait for disconnect finished
+                                disconnect.get();
+
+                                listener.getLogger().println("Reverting " + vmName + " to snapshot " + snapshotName + ".");
+                                domain.revertToSnapshot(snapshot);
+
+                                listener.getLogger().println("Relaunching " + vmName + ".");
                                 try {
-                                    computer.getChannel().close();
-                                    computer.disconnect(new OfflineCause.ByCLI("Stopping " + vmName + " to revert to snapshot " + snapshotName + "."));
-                                    try {
-                                        computer.waitUntilOffline();
-
-                                        listener.getLogger().println("Reverting " + vmName + " to snapshot " + snapshotName + ".");
-                                        domain.revertToSnapshot(snapshot);
-
-                                        listener.getLogger().println("Relaunching " + vmName + ".");
-                                        try {
-                                            launcher.launch(slave.getComputer(), listener);
-                                        } catch (IOException e) {
-                                            listener.fatalError("Could not relaunch VM: " + e);
-                                        } catch (InterruptedException e) {
-                                            listener.fatalError("Could not relaunch VM: " + e);
-                                        }
-                                    } catch (InterruptedException e) {
-                                        listener.fatalError("Interrupted while waiting for computer to be offline: " + e);
-                                    }
+                                    launcher.launch(slave.getComputer(), listener);
                                 } catch (IOException e) {
-                                    listener.fatalError("Error closing channel: " + e);
+                                    listener.fatalError("Could not relaunch VM: " + e);
+                                } catch (InterruptedException e) {
+                                    listener.fatalError("Could not relaunch VM: " + e);
                                 }
                             } catch (InterruptedException e) {
-                                listener.fatalError("Interrupted while syncing IO: " + e);
+                                listener.fatalError("Interrupted while waiting for computer to be disconnected: " + e);
+                            } catch (ExecutionException e) {
+                                listener.fatalError("Interrupted while waiting for computer to be disconnected: " + e);
                             }
                         } catch (VirtException e) {
                             listener.fatalError("No snapshot named " + snapshotName + " for VM: " + e);
