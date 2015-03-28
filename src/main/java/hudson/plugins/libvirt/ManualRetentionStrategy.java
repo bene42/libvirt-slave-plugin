@@ -27,7 +27,16 @@ public class ManualRetentionStrategy extends RetentionStrategy<SlaveComputer> {
     }
 
     public long check(SlaveComputer c) {
-        return 60;
+        if (c.isOffline() && !c.isConnecting() && c.isLaunchSupported()
+            && !(c.getOfflineCause() instanceof RevertOfflineCause)) {
+           c.tryReconnect();
+        }
+        return 1;
+    }
+
+    @Override
+    public void start(SlaveComputer c) {
+        c.connect(false);
     }
 
     @Extension(ordinal=100)
