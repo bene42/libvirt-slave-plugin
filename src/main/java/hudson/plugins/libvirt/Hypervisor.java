@@ -319,7 +319,7 @@ public class Hypervisor extends Cloud {
         ensureLists();
 
         // Don't allow more than max.
-        if ((maxOnlineSlaves > 0) && (currentOnline.size() == maxOnlineSlaves))
+        if (maxOnlineSlaves > 0 && currentOnline.size() == maxOnlineSlaves)
             return Boolean.FALSE;
 
         // Don't allow two slaves to the same VM to fire up.
@@ -425,9 +425,9 @@ public class Hypervisor extends Cloud {
                 @QueryParameter String port,
                 @QueryParameter String value) {
 
-            AccessControlled _context = (context instanceof AccessControlled ? (AccessControlled) context :
-                    Jenkins.getInstance());
-            if (_context == null || !_context.hasPermission(Computer.CONFIGURE)) {
+            AccessControlled _context = context instanceof AccessControlled ? (AccessControlled) context :
+                    Jenkins.get();
+            if (!_context.hasPermission(Computer.CONFIGURE)) {
                 return new StandardUsernameListBoxModel()
                         .includeCurrentValue(value);
             }
@@ -435,9 +435,8 @@ public class Hypervisor extends Cloud {
             try {
                 int portValue = Integer.parseInt(port);
                 return new StandardUsernameListBoxModel()
-                        .includeMatchingAs(
-                                ACL.SYSTEM,
-                                Jenkins.getActiveInstance(),
+                        .includeMatchingAs(ACL.SYSTEM,
+                                Jenkins.get(),
                                 StandardUsernameCredentials.class,
                                 Collections.<DomainRequirement>singletonList(
                                         new HostnamePortRequirement(host, portValue)

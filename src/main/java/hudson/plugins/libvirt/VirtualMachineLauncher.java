@@ -44,11 +44,11 @@ import org.kohsuke.stapler.DataBoundConstructor;
 public class VirtualMachineLauncher extends ComputerLauncher {
 
     private static final Logger LOGGER = Logger.getLogger(VirtualMachineLauncher.class.getName());
-    private ComputerLauncher delegate;
+    private final ComputerLauncher delegate;
     private transient VirtualMachine virtualMachine;
-    private String hypervisorDescription;
-    private String virtualMachineName;
-    private String snapshotName;
+    private final String hypervisorDescription;
+    private final String virtualMachineName;
+    private final String snapshotName;
     private final int WAIT_TIME_MS;
     private final int timesToRetryOnFailure;
 
@@ -71,7 +71,7 @@ public class VirtualMachineLauncher extends ComputerLauncher {
             Hypervisor hypervisor;
             try {
                 hypervisor = findOurHypervisorInstance();
-                LOGGER.log(Level.FINE, "Hypervisor found, searching for a matching virtual machine for \"" + virtualMachineName + "\"...");
+                LOGGER.log(Level.FINE, "Hypervisor found, searching for a matching virtual machine for \"{0}\"...", virtualMachineName);
 
                 for (VirtualMachine vm : hypervisor.getVirtualMachines()) {
                     if (vm.getName().equals(virtualMachineName)) {
@@ -80,7 +80,7 @@ public class VirtualMachineLauncher extends ComputerLauncher {
                     }
                 }
             } catch (VirtException e) {
-                LOGGER.log(Level.SEVERE, "no Hypervisor found, searching for a matching virtual machine for \"" + virtualMachineName + "\" " + e.getMessage());
+                LOGGER.log(Level.SEVERE, "no Hypervisor found, searching for a matching virtual machine for \"{0}\" {1}", new Object[]{virtualMachineName, e.getMessage()});
             }
         }
     }
@@ -105,11 +105,9 @@ public class VirtualMachineLauncher extends ComputerLauncher {
 
     public Hypervisor findOurHypervisorInstance() throws VirtException {
         if (hypervisorDescription != null && virtualMachineName != null) {
-            Hypervisor hypervisor = null;
-            for (Cloud cloud : Jenkins.getInstance().clouds) {
+            for (Cloud cloud : Jenkins.get().clouds) {
                 if (cloud instanceof Hypervisor && ((Hypervisor) cloud).getHypervisorDescription().equals(hypervisorDescription)) {
-                    hypervisor = (Hypervisor) cloud;
-                    return hypervisor;
+                    return (Hypervisor) cloud;
                 }
             }
         }
@@ -179,7 +177,7 @@ public class VirtualMachineLauncher extends ComputerLauncher {
             rec.setThrown(e);
             LOGGER.log(rec);
             throw e;
-        } catch (Throwable t) {
+        } catch (Exception t) {
             taskListener.fatalError(t.getMessage(), t);
 
             LogRecord rec = new LogRecord(Level.SEVERE, "Error while launching {0} on Hypervisor {1}.");
