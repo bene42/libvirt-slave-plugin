@@ -1,14 +1,15 @@
 package hudson.plugins.libvirt;
 
 
-import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import hudson.Extension;
-import hudson.model.*;
+import hudson.model.Describable;
+import hudson.model.Descriptor;
+import hudson.model.ManagementLink;
+import hudson.model.Saveable;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerProxy;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collection;
 
@@ -31,6 +32,7 @@ public class VirtualMachineManagement extends ManagementLink implements StaplerP
         return "libvirt-slave";
     }
 
+    @Override
     public String getDisplayName() {
         return Messages.DisplayName();
     }
@@ -44,7 +46,7 @@ public class VirtualMachineManagement extends ManagementLink implements StaplerP
         return ManagementLink.all().get(VirtualMachineManagement.class);
     }
 
-
+    @Override
     public DescriptorImpl getDescriptor() {
         return Jenkins.getInstance().getDescriptorByType(DescriptorImpl.class);
     }
@@ -65,25 +67,19 @@ public class VirtualMachineManagement extends ManagementLink implements StaplerP
         return new VirtualMachineManagementServer(serverName);
     }
 
-
+    @Override
     public Object getTarget() {
         Jenkins.getInstance().checkPermission(Jenkins.ADMINISTER);
         return this;
     }
 
-
+    @Override
     public void save() throws IOException {
 
     }
 
 
     public Collection<String> getServerNames() {
-        return Collections2.transform(PluginImpl.getInstance().getServers(), new Function<Hypervisor, String>() {
-            public String apply(@Nullable Hypervisor input) {
-                return input.getHypervisorHost();
-            }
-        });
+        return Collections2.transform(PluginImpl.getInstance().getServers(), Hypervisor::getHypervisorHost);
     }
-
-
 }

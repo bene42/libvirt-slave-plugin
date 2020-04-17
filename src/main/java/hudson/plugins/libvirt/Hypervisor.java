@@ -40,6 +40,7 @@ import hudson.plugins.libvirt.lib.ConnectionBuilder;
 import hudson.plugins.libvirt.lib.IConnect;
 import hudson.plugins.libvirt.lib.IDomain;
 import hudson.plugins.libvirt.lib.VirtException;
+import static hudson.plugins.libvirt.util.Consts.SSH_PORT;
 import hudson.security.ACL;
 import hudson.security.AccessControlled;
 import hudson.slaves.Cloud;
@@ -53,7 +54,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -100,7 +100,13 @@ public class Hypervisor extends Cloud {
         } else {
             this.hypervisorSystemUrl = "system";
         }
-        this.hypervisorSshPort = sshPort <= 0 ? 22 : sshPort;
+
+        if (sshPort > 0) {
+            this.hypervisorSshPort = sshPort;
+        } else {
+            this.hypervisorSshPort = SSH_PORT;
+        }
+
         this.hypervisorUser = username;
         this.maxOnlineSlaves = max;
         this.useNativeJavaConnection = useNative;
@@ -402,8 +408,6 @@ public class Hypervisor extends Cloud {
 
     @Extension
     public static final class DescriptorImpl extends Descriptor<Cloud> {
-
-        public final ConcurrentMap<String, Hypervisor> hypervisors = new ConcurrentHashMap<>();
         private String hypervisorType;
         private String hypervisorHost;
         private String hypervisorSystemUrl;
@@ -426,14 +430,19 @@ public class Hypervisor extends Cloud {
             return super.configure(req, o);
         }
 
-        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup<?> context,
+        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath ItemGroup<?> ctx,
                 @QueryParameter String host,
                 @QueryParameter String port,
                 @QueryParameter String value) {
+            AccessControlled context;
 
-            AccessControlled _context = context instanceof AccessControlled
-                    ? (AccessControlled) context : Jenkins.get();
-            if (!_context.hasPermission(Computer.CONFIGURE)) {
+            if (ctx instanceof AccessControlled) {
+                    context = (AccessControlled) ctx;
+            } else {
+                context = Jenkins.get();
+            }
+
+            if (!context.hasPermission(Computer.CONFIGURE)) {
                 return new StandardUsernameListBoxModel()
                         .includeCurrentValue(value);
             }
@@ -482,7 +491,7 @@ public class Hypervisor extends Cloud {
                 LogRecord rec = new LogRecord(Level.FINE, "Testing connection to hypervisor: {0}");
                 rec.setParameters(new Object[]{hypervisorUri});
                 LOGGER.log(rec);
-                
+
                 IConnect hypervisorConnection = builder.build();
                 long version = hypervisorConnection.getVersion();
                 hypervisorConnection.close();

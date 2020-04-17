@@ -44,12 +44,14 @@ import org.kohsuke.stapler.DataBoundConstructor;
 public class VirtualMachineLauncher extends ComputerLauncher {
 
     private static final Logger LOGGER = Logger.getLogger(VirtualMachineLauncher.class.getName());
+    private static final int MSEC_PER_SEC = 1000;
+
     private final ComputerLauncher delegate;
     private transient VirtualMachine virtualMachine;
     private final String hypervisorDescription;
     private final String virtualMachineName;
     private final String snapshotName;
-    private final int WAIT_TIME_MS;
+    private final int waitTimeMs;
     private final int timesToRetryOnFailure;
 
     @DataBoundConstructor
@@ -60,7 +62,7 @@ public class VirtualMachineLauncher extends ComputerLauncher {
         this.virtualMachineName = vmName;
         this.snapshotName = snapshot;
         this.hypervisorDescription = description;
-        this.WAIT_TIME_MS = wait * 1000;
+        this.waitTimeMs = wait * MSEC_PER_SEC;
         this.timesToRetryOnFailure = retry;
         lookupVirtualMachineHandle();
     }
@@ -132,9 +134,9 @@ public class VirtualMachineLauncher extends ComputerLauncher {
             IDomain domain = computers.get(virtualMachine.getVmName());
             if (domain != null) {
                 if (domain.isNotBlockedAndNotRunning()) {
-                    taskListener.getLogger().println("Starting, waiting for " + WAIT_TIME_MS + "ms to let it fully boot up...");
+                    taskListener.getLogger().println("Starting, waiting for " + waitTimeMs + "ms to let it fully boot up...");
                     domain.create();
-                    Thread.sleep(WAIT_TIME_MS);
+                    Thread.sleep(waitTimeMs);
 
                     int attempts = 0;
                     while (true) {
@@ -156,9 +158,9 @@ public class VirtualMachineLauncher extends ComputerLauncher {
                             break;
                         }
 
-                        taskListener.getLogger().println("Not up yet, waiting for " + WAIT_TIME_MS + "ms more ("
+                        taskListener.getLogger().println("Not up yet, waiting for " + waitTimeMs + "ms more ("
                                                          + attempts + "/" + timesToRetryOnFailure + " retries)...");
-                        Thread.sleep(WAIT_TIME_MS);
+                        Thread.sleep(waitTimeMs);
                     }
                 } else {
                     taskListener.getLogger().println("Already running, no startup required.");
