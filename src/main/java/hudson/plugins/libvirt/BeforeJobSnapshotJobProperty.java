@@ -24,9 +24,9 @@ public class BeforeJobSnapshotJobProperty extends JobProperty<Job<?, ?>> {
         private boolean snapshotsEnabled;
 
         @DataBoundConstructor
-        public EnableData(boolean snapshotsEnabled, String snapshotName) {
-            setSnapshotsEnabled(snapshotsEnabled);
-            setSnapshotName(snapshotName);
+        public EnableData(boolean enabled, String name) {
+            setSnapshotsEnabled(enabled);
+            setSnapshotName(name);
         }
 
         public String getSnapshotName() {
@@ -37,12 +37,12 @@ public class BeforeJobSnapshotJobProperty extends JobProperty<Job<?, ?>> {
             return snapshotsEnabled;
         }
 
-        private void setSnapshotName(String snapshotName) {
-            this.snapshotName = snapshotName;
+        private void setSnapshotName(String name) {
+            this.snapshotName = name;
         }
 
-        private void setSnapshotsEnabled(boolean snapshotsEnabled) {
-            this.snapshotsEnabled = snapshotsEnabled;
+        private void setSnapshotsEnabled(boolean enabled) {
+            this.snapshotsEnabled = enabled;
         }
     }
 

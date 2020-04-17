@@ -157,7 +157,7 @@ public class PluginImpl extends Plugin {
         }
         if (virtualMachines != null) {
             for (VirtualMachine vm : virtualMachines) {
-                m.add(new ListBoxModel.Option(vm.getName(), vm.getName()));
+                m.add(new ListBoxModel.Option(vm.getVmName(), vm.getVmName()));
             }
             if (m.size() > 0) {
                 m.get(0).selected = true;

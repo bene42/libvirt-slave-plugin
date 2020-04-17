@@ -11,8 +11,8 @@ public class JLibVirtDomainSnapshotImpl implements IDomainSnapshot {
 
     private final DomainSnapshot domainSnapshot;
 
-    public JLibVirtDomainSnapshotImpl(DomainSnapshot domainSnapshot) {
-        this.domainSnapshot = domainSnapshot;
+    public JLibVirtDomainSnapshotImpl(DomainSnapshot snapshot) {
+        this.domainSnapshot = snapshot;
     }
 
     public DomainSnapshot getSnapshot() {

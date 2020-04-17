@@ -13,8 +13,8 @@ import org.libvirt.LibvirtException;
  */
 public class LibVirtDomainImpl implements IDomain {
     private final Domain domain;
-    public LibVirtDomainImpl(Domain domain) {
-        this.domain = domain;
+    public LibVirtDomainImpl(Domain d) {
+        this.domain = d;
     }
 
     public String getName() throws VirtException {

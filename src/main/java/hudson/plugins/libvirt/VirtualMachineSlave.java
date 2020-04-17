@@ -67,21 +67,22 @@ public class VirtualMachineSlave extends Slave {
     public VirtualMachineSlave(String name, String nodeDescription, String remoteFS, String numExecutors,
             Mode mode, String labelString, VirtualMachineLauncher launcher, ComputerLauncher delegateLauncher,
             RetentionStrategy<? extends Computer> retentionStrategy, List<? extends NodeProperty<?>> nodeProperties,
-            String hypervisorDescription, String virtualMachineName, String snapshotName, int startupWaitingPeriodSeconds,
-            String shutdownMethod, boolean rebootAfterRun, int startupTimesToRetryOnFailure, String beforeJobSnapshotName)
+            String hypervisorDescr, String vmName, String snapshot, int waitPeriod,
+            String shutdown, boolean reboot, int retry, String preSnapshot)
             throws
             Descriptor.FormException, IOException {
         super(name, nodeDescription, remoteFS, Util.tryParseNumber(numExecutors, 1).intValue(), mode, labelString,
-                launcher == null ? new VirtualMachineLauncher(delegateLauncher, hypervisorDescription, virtualMachineName, snapshotName, startupWaitingPeriodSeconds, startupTimesToRetryOnFailure) : launcher,
-                retentionStrategy, nodeProperties);
-        this.hypervisorDescription = hypervisorDescription;
-        this.virtualMachineName = virtualMachineName;
-        this.snapshotName = snapshotName;
-        this.startupWaitingPeriodSeconds = startupWaitingPeriodSeconds;
-        this.shutdownMethod = shutdownMethod;
-        this.rebootAfterRun = rebootAfterRun;
-        this.startupTimesToRetryOnFailure = startupTimesToRetryOnFailure;
-        this.beforeJobSnapshotName = beforeJobSnapshotName;
+              launcher == null ? new VirtualMachineLauncher(delegateLauncher, hypervisorDescr,
+                                                            vmName, snapshot, waitPeriod, retry) : launcher,
+              retentionStrategy, nodeProperties);
+        this.hypervisorDescription = hypervisorDescr;
+        this.virtualMachineName = vmName;
+        this.snapshotName = snapshot;
+        this.startupWaitingPeriodSeconds = waitPeriod;
+        this.shutdownMethod = shutdown;
+        this.rebootAfterRun = reboot;
+        this.startupTimesToRetryOnFailure = retry;
+        this.beforeJobSnapshotName = preSnapshot;
     }
 
     public String getHypervisorDescription() {
@@ -171,9 +172,9 @@ public class VirtualMachineSlave extends Slave {
             return true;
         }
 
-        public List<VirtualMachine> getDefinedVirtualMachines(String hypervisorDescription) {
+        public List<VirtualMachine> getDefinedVirtualMachines(String description) {
             List<VirtualMachine> virtualMachinesList = new ArrayList<VirtualMachine>();
-            Hypervisor hypervisor = getHypervisorByDescription(hypervisorDescription);
+            Hypervisor hypervisor = getHypervisorByDescription(description);
             if (hypervisor != null) {
                 virtualMachinesList.addAll(hypervisor.getVirtualMachines());
         }
@@ -181,10 +182,10 @@ public class VirtualMachineSlave extends Slave {
             return virtualMachinesList;
         }
 
-        public String[] getDefinedSnapshots(String hypervisorDescription, String virtualMachineName) {
-            Hypervisor hypervisor = getHypervisorByDescription(hypervisorDescription);
+        public String[] getDefinedSnapshots(String description, String vmName) {
+            Hypervisor hypervisor = getHypervisorByDescription(description);
             if (hypervisor != null) {
-                String[] snapS = hypervisor.getSnapshots(virtualMachineName);
+                String[] snapS = hypervisor.getSnapshots(vmName);
                 return snapS;
             }
             return new String[0];
@@ -212,10 +213,10 @@ public class VirtualMachineSlave extends Slave {
             return snapshotName;
         }
 
-        private Hypervisor getHypervisorByDescription(String hypervisorDescription) {
-            if (hypervisorDescription != null && !hypervisorDescription.equals("")) {
+        private Hypervisor getHypervisorByDescription(String description) {
+            if (description != null && !description.equals("")) {
                 for (Cloud cloud : Jenkins.getInstance().clouds) {
-                    if (cloud instanceof Hypervisor && ((Hypervisor) cloud).getHypervisorDescription().equals(hypervisorDescription)) {
+                    if (cloud instanceof Hypervisor && ((Hypervisor) cloud).getHypervisorDescription().equals(description)) {
                         return (Hypervisor) cloud;
                     }
                 }

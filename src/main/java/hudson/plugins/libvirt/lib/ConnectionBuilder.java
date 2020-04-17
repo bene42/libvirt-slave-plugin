@@ -27,38 +27,38 @@ public class ConnectionBuilder {
 
     public static ConnectionBuilder newBuilder() { return new ConnectionBuilder(); }
 
-    public ConnectionBuilder hypervisorType(String hypervisorType) {
-        this.hypervisorType = hypervisorType;
+    public ConnectionBuilder hypervisorType(String type) {
+        this.hypervisorType = type;
         return this;
     }
 
-    public ConnectionBuilder userName(String userName) {
-        this.userName = userName;
+    public ConnectionBuilder userName(String name) {
+        this.userName = name;
         return this;
     }
 
-    public ConnectionBuilder hypervisorHost(String hypervisorHost) {
-        this.hypervisorHost = hypervisorHost;
+    public ConnectionBuilder hypervisorHost(String host) {
+        this.hypervisorHost = host;
         return this;
     }
 
-    public ConnectionBuilder hypervisorPort(int hypervisorPort) {
-        this.hypervisorPort = hypervisorPort;
+    public ConnectionBuilder hypervisorPort(int port) {
+        this.hypervisorPort = port;
         return this;
     }
 
-    public ConnectionBuilder hypervisorSysUrl(String hypervisorSysUrl) {
-        this.hypervisorSysUrl = hypervisorSysUrl;
+    public ConnectionBuilder hypervisorSysUrl(String sysUrl) {
+        this.hypervisorSysUrl = sysUrl;
         return this;
     }
 
-    public ConnectionBuilder withCredentials(StandardUsernameCredentials standardUsernameCredentials) {
-        this.credentials = standardUsernameCredentials;
+    public ConnectionBuilder withCredentials(StandardUsernameCredentials cred) {
+        this.credentials = cred;
         return this;
     }
 
-    public ConnectionBuilder useUri(String uri) {
-        this.uri = uri;
+    public ConnectionBuilder useUri(String u) {
+        this.uri = u;
         return this;
     }
 

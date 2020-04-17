@@ -12,8 +12,8 @@ import hudson.plugins.libvirt.lib.VirtException;
  */
 public class JLibVirtDomainImpl implements IDomain {
     private final Domain domain;
-    public JLibVirtDomainImpl(Domain domain) {
-        this.domain = domain;
+    public JLibVirtDomainImpl(Domain d) {
+        this.domain = d;
     }
 
     public String getName() throws VirtException {

@@ -53,15 +53,15 @@ public class VirtualMachineLauncher extends ComputerLauncher {
     private final int timesToRetryOnFailure;
 
     @DataBoundConstructor
-    public VirtualMachineLauncher(ComputerLauncher delegate, String hypervisorDescription, String virtualMachineName, String snapshotName,
-            int waitingTimeSecs, int timesToRetryOnFailure) {
+    public VirtualMachineLauncher(ComputerLauncher delegateTo, String description,
+                                  String vmName, String snapshot, int wait, int retry) {
         super();
-        this.delegate = delegate;
-        this.virtualMachineName = virtualMachineName;
-        this.snapshotName = snapshotName;
-        this.hypervisorDescription = hypervisorDescription;
-        this.WAIT_TIME_MS = waitingTimeSecs * 1000;
-        this.timesToRetryOnFailure = timesToRetryOnFailure;
+        this.delegate = delegateTo;
+        this.virtualMachineName = vmName;
+        this.snapshotName = snapshot;
+        this.hypervisorDescription = description;
+        this.WAIT_TIME_MS = wait * 1000;
+        this.timesToRetryOnFailure = retry;
         lookupVirtualMachineHandle();
     }
 
@@ -74,7 +74,7 @@ public class VirtualMachineLauncher extends ComputerLauncher {
                 LOGGER.log(Level.FINE, "Hypervisor found, searching for a matching virtual machine for \"{0}\"...", virtualMachineName);
 
                 for (VirtualMachine vm : hypervisor.getVirtualMachines()) {
-                    if (vm.getName().equals(virtualMachineName)) {
+                    if (vm.getVmName().equals(virtualMachineName)) {
                         virtualMachine = vm;
                         break;
                     }
@@ -129,7 +129,7 @@ public class VirtualMachineLauncher extends ComputerLauncher {
             }
 
             Map<String, IDomain> computers = virtualMachine.getHypervisor().getDomains();
-            IDomain domain = computers.get(virtualMachine.getName());
+            IDomain domain = computers.get(virtualMachine.getVmName());
             if (domain != null) {
                 if (domain.isNotBlockedAndNotRunning()) {
                     taskListener.getLogger().println("Starting, waiting for " + WAIT_TIME_MS + "ms to let it fully boot up...");
@@ -167,13 +167,13 @@ public class VirtualMachineLauncher extends ComputerLauncher {
                 delegate.launch(slaveComputer, taskListener);
                 }
             } else {
-                throw new IOException("VM \"" + virtualMachine.getName() + "\" (slave title \"" + slaveComputer.getDisplayName() + "\") not found!");
+                throw new IOException("VM \"" + virtualMachine.getVmName() + "\" (slave title \"" + slaveComputer.getDisplayName() + "\") not found!");
             }
         } catch (IOException e) {
             taskListener.fatalError(e.getMessage(), e);
 
             LogRecord rec = new LogRecord(Level.SEVERE, "Error while launching {0} on Hypervisor {1}.");
-            rec.setParameters(new Object[]{virtualMachine.getName(), virtualMachine.getHypervisor().getHypervisorURI()});
+            rec.setParameters(new Object[]{virtualMachine.getVmName(), virtualMachine.getHypervisor().getHypervisorURI()});
             rec.setThrown(e);
             LOGGER.log(rec);
             throw e;
@@ -181,7 +181,7 @@ public class VirtualMachineLauncher extends ComputerLauncher {
             taskListener.fatalError(t.getMessage(), t);
 
             LogRecord rec = new LogRecord(Level.SEVERE, "Error while launching {0} on Hypervisor {1}.");
-            rec.setParameters(new Object[]{virtualMachine.getName(), virtualMachine.getHypervisor().getHypervisorURI()});
+            rec.setParameters(new Object[]{virtualMachine.getVmName(), virtualMachine.getHypervisor().getHypervisorURI()});
             rec.setThrown(t);
             LOGGER.log(rec);
         }

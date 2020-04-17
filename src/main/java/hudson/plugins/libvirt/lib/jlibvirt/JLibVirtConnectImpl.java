@@ -15,8 +15,8 @@ public class JLibVirtConnectImpl implements IConnect {
 
     private final Connect connect;
 
-    public JLibVirtConnectImpl(Connect connect) {
-        this.connect = connect;
+    public JLibVirtConnectImpl(Connect conn) {
+        this.connect = conn;
     }
 
     public JLibVirtConnectImpl(String host, int port, String username, String password, String hypervisorUri, boolean b) throws VirtException {

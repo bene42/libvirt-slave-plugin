@@ -13,8 +13,8 @@ import org.libvirt.LibvirtException;
 public class LibVirtConnectImpl implements IConnect {
     private final Connect connect;
 
-    public LibVirtConnectImpl(Connect connect) {
-        this.connect = connect;
+    public LibVirtConnectImpl(Connect conn) {
+        this.connect = conn;
     }
 
     public LibVirtConnectImpl(String hypervisorUri, boolean b) throws VirtException {

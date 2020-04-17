@@ -10,8 +10,8 @@ public class LibVirtDomainSnapshotImpl implements IDomainSnapshot {
 
     private final DomainSnapshot domainSnapshot;
 
-    public LibVirtDomainSnapshotImpl(DomainSnapshot domainSnapshot) {
-        this.domainSnapshot = domainSnapshot;
+    public LibVirtDomainSnapshotImpl(DomainSnapshot snapshot) {
+        this.domainSnapshot = snapshot;
     }
 
     public DomainSnapshot getSnapshot() {

@@ -34,9 +34,9 @@ public class VirtualMachineManagementServer implements Describable<VirtualMachin
         return VirtualMachineManagement.get().getUrlName() + "/server/" + host;
     }
 
-    public VirtualMachineManagementServer(String host) {
-        this.host = host;
-        this.theCloud = PluginImpl.getInstance().getServer(host);
+    public VirtualMachineManagementServer(String hostname) {
+        this.host = hostname;
+        this.theCloud = PluginImpl.getInstance().getServer(hostname);
     }
 
     public Collection<IDomain> getDomains() throws VirtException {

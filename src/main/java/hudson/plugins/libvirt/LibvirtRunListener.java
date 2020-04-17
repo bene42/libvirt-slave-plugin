@@ -54,7 +54,7 @@ public final class LibvirtRunListener extends RunListener<Run<?, ?>> {
                 for (int i = 0; i < 5; i++) {
                     try {
                         Map<String, IDomain> computers = virtualMachine.getHypervisor().getDomains();
-                        IDomain domain = computers.get(virtualMachine.getName());
+                        IDomain domain = computers.get(virtualMachine.getVmName());
                         domain.create();
                     } catch (VirtException e) {
                         try { Thread.sleep(500); } catch (Exception e2) {}

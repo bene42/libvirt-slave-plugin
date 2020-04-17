@@ -26,17 +26,17 @@ import java.io.Serializable;
 
 public class VirtualMachine implements Serializable, Comparable<VirtualMachine> {
 
-    private final String name;
+    private final String vmName;
     private final Hypervisor hypervisor;
 
     @DataBoundConstructor
-    public VirtualMachine(Hypervisor hypervisor, String name) {
-        this.hypervisor = hypervisor;
-        this.name = name;
+    public VirtualMachine(Hypervisor h, String name) {
+        this.hypervisor = h;
+        this.vmName = name;
     }
 
-    public String getName() {
-        return name;
+    public String getVmName() {
+        return vmName;
     }
 
     public Hypervisor getHypervisor() {
@@ -57,7 +57,7 @@ public class VirtualMachine implements Serializable, Comparable<VirtualMachine> 
         if (hypervisor != null ? !hypervisor.equals(that.hypervisor) : that.hypervisor != null) {
             return false;
         }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (vmName != null ? !vmName.equals(that.vmName) : that.vmName != null) {
             return false;
         }
 
@@ -66,24 +66,24 @@ public class VirtualMachine implements Serializable, Comparable<VirtualMachine> 
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
+        int result = vmName != null ? vmName.hashCode() : 0;
         result = 31 * result + (hypervisor != null ? hypervisor.hashCode() : 0);
         return result;
     }
 
     public String getDisplayName() {
-        return name + "@" + hypervisor.getHypervisorHost();
+        return vmName + "@" + hypervisor.getHypervisorHost();
     }
 
     public int compareTo(VirtualMachine o) {
-        return name.compareTo(o.getName());
+        return vmName.compareTo(o.getVmName());
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("VirtualComputer");
-        sb.append("{name='").append(name).append('\'');
+        sb.append("{name='").append(vmName).append('\'');
         sb.append(", hypervisor=").append(hypervisor);
         sb.append('}');
         return sb.toString();
